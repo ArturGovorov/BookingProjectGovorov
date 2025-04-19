@@ -7,7 +7,7 @@ import pytest
 from dotenv import load_dotenv
 from core.settings.environments import Environment
 from core.clients.endpoints import Endpoints
-from core.settings.config import Users, Timeouts, TestBookingData
+from core.settings.config import Users, Timeouts
 
 load_dotenv()
 
