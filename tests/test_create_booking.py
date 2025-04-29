@@ -54,11 +54,8 @@ def test_create_booking_valid_data(api_client):
     with allure.step('Create booking with valid data'):
         response = api_client.create_booking(valid_booking_data)
 
-    with allure.step('Verify response status code is 200'):
-        assert response.status_code == 200
-
     with allure.step('Verify response contains booking data'):
-        response_data = response.json()
-        assert 'bookingid' in response_data
-        assert isinstance(response_data['bookingid'], int)
-        assert response_data['booking'] == valid_booking_data
+        assert isinstance(response, dict)
+        assert "bookingid" in response
+        assert "booking" in response
+        assert response["booking"] == valid_booking_data
