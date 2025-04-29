@@ -4,27 +4,6 @@ from requests.exceptions import HTTPError
 
 
 @allure.feature('Test Booking')
-@allure.story('Test invalid booking creation')
-def test_create_booking_unsuccessful(api_client):
-    invalid_booking_data = {
-        "firstname": "Arthur",
-        "lastname": "Dru",
-        "totalprice": -100,
-        "depositpaid": "not_boolean",
-        "bookingdates": {
-            "checkin": "2025-04-01",
-            "checkout": "2025-04-10"
-        },
-        "additionalneeds": "Breakfast"
-    }
-
-    with allure.step('Send invalid booking request'):
-        with pytest.raises(HTTPError) as exc_info:
-            api_client.create_booking(invalid_booking_data)
-        assert "418" in str(exc_info.value), "Expected 418 I'm a Teapot error"
-
-
-@allure.feature('Test Booking')
 @allure.story('Test creating booking with invalid data')
 def test_create_booking_invalid_data(api_client):
     invalid_booking_data = {
