@@ -1,8 +1,12 @@
 import allure
 import pytest
+import requests
 from requests.exceptions import HTTPError
 from pydantic import ValidationError
 from core.models.booking import BookingResponse
+from faker import Faker
+
+fake = Faker()
 
 
 @allure.feature('Test creating booking')
@@ -46,7 +50,7 @@ def test_create_booking_valid_data(api_client):
 @allure.story('Positive: creating booking with custom data')
 def test_create_booking_with_custom_data(api_client):
     booking_data = {
-    "firstname": "Ivan",
+        "firstname": "Ivan",
         "lastname": "Ivanovich",
         "totalprice": 150,
         "depositpaid": True,
@@ -68,7 +72,7 @@ def test_create_booking_with_custom_data(api_client):
     assert response['booking']['totalprice'] == booking_data['totalprice']
     assert response['booking']['depositpaid'] == booking_data['depositpaid']
     assert response['booking']['bookingdates']['checkin'] == booking_data['bookingdates']['checkin']
-    assert response['booking']['bookingdates']['checkout']== booking_data['bookingdates']['checkout']
+    assert response['booking']['bookingdates']['checkout'] == booking_data['bookingdates']['checkout']
     assert response['booking']['additionalneeds'] == booking_data['additionalneeds']
 
 
@@ -76,12 +80,12 @@ def test_create_booking_with_custom_data(api_client):
 @allure.story('Positive: creating booking with random data')
 def test_create_booking_with_random_data(booking_dates, api_client):
     booking_data = {
-        "firstname": "Ivan",
-        "lastname": "Ivanovich",
-        "totalprice": 150,
-        "depositpaid": True,
+        "firstname": fake.first_name(),
+        "lastname": fake.last_name(),
+        "totalprice": fake.random_int(min=50, max=1000),
+        "depositpaid": fake.boolean(),
         "bookingdates": booking_dates,
-        "additionalneeds": "Dinner"
+        "additionalneeds": fake.word(),
     }
 
     response = api_client.create_booking(booking_data)
@@ -97,3 +101,27 @@ def test_create_booking_with_random_data(booking_dates, api_client):
     assert response['booking']['bookingdates']['checkin'] == booking_data['bookingdates']['checkin']
     assert response['booking']['bookingdates']['checkout'] == booking_data['bookingdates']['checkout']
     assert response['booking']['additionalneeds'] == booking_data['additionalneeds']
+
+
+@allure.feature('Test creating booking')
+@allure.story('Negative: creating booking with incorrect data')
+def test_create_booking_with_incorrect_data(api_client):
+    invalid_booking_data = {
+        "firstname": "",
+        "lastname": "",
+        "totalprice": "Ivan",
+        "depositpaid": None,
+        "bookingdates": {
+            "checkin": "Privet",
+            "checkout": "Poka"
+        },
+        "additionalneeds": 1
+    }
+
+    try:
+        response = api_client.create_booking(invalid_booking_data)
+
+        assert response.status_code >= 400, f"Ожидалась ошибка, получен статус {response.status_code}"
+    except requests.exceptions.HTTPError as e:
+        response = e.response
+        assert response.status_code >= 400, f"Ожидалась ошибка, получена {response.status_code}"
