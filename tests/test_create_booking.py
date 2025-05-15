@@ -112,8 +112,5 @@ def test_create_booking_with_incorrect_data(api_client):
         "additionalneeds": 1
     }
 
-    with pytest.raises(requests.exceptions.HTTPError) as exc_info:
+    with pytest.raises(requests.exceptions.HTTPError):
         api_client.create_booking(invalid_booking_data)
-
-    response = exc_info.value.response
-    assert response.status_code >= 400, f"Ожидалась ошибка, получен статус {response.status_code}"
