@@ -78,17 +78,11 @@ def test_create_booking_with_custom_data(api_client):
 
 @allure.feature('Test creating booking')
 @allure.story('Positive: creating booking with random data')
-def test_create_booking_with_random_data(booking_dates, api_client):
-    booking_data = {
-        "firstname": fake.first_name(),
-        "lastname": fake.last_name(),
-        "totalprice": fake.random_int(min=50, max=1000),
-        "depositpaid": fake.boolean(),
-        "bookingdates": booking_dates,
-        "additionalneeds": fake.word(),
-    }
-
+def test_create_booking_with_random_data(generate_random_booking_data, booking_dates, api_client):
+    booking_data = generate_random_booking_data
+    booking_data["bookingdates"] = booking_dates
     response = api_client.create_booking(booking_data)
+
     try:
         BookingResponse(**response)
     except ValidationError as e:
@@ -118,10 +112,8 @@ def test_create_booking_with_incorrect_data(api_client):
         "additionalneeds": 1
     }
 
-    try:
-        response = api_client.create_booking(invalid_booking_data)
+    with pytest.raises(requests.exceptions.HTTPError) as exc_info:
+        api_client.create_booking(invalid_booking_data)
 
-        assert response.status_code >= 400, f"Ожидалась ошибка, получен статус {response.status_code}"
-    except requests.exceptions.HTTPError as e:
-        response = e.response
-        assert response.status_code >= 400, f"Ожидалась ошибка, получена {response.status_code}"
+    response = exc_info.value.response
+    assert response.status_code >= 400, f"Ожидалась ошибка, получен статус {response.status_code}"
