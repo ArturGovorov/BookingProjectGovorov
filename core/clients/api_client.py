@@ -1,9 +1,6 @@
-from http.client import responses
-
 import requests
 import os
 import allure
-import pytest
 from dotenv import load_dotenv
 from requests.auth import HTTPBasicAuth
 from core.settings.environments import Environment
